@@ -1,6 +1,6 @@
-# GTS
+# Discrete Graph Structure Learning for Forecasting Multiple Time Series
 
-This is a PyTorch implementation of the paper "Discrete Graph Structure Learning for Forecasting Multiple Time Series", ICLR 2021.
+This is a PyTorch implementation of the paper: Discrete Graph Structure Learning for Forecasting Multiple Time Series, ICLR 2021.
 
 ## Installation
 
@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 ## Data Preparation
 
-The traffic data files for Los Angeles (METR-LA) and the Bay Area (PEMS-BAY) are put into the `data/` folder. 
+The traffic data files for Los Angeles (METR-LA) and the Bay Area (PEMS-BAY) are put into the `data/` folder. They are provided by [DCRNN](https://github.com/chnsh/DCRNN_PyTorch).
 
 Run the following commands to generate train/test/val dataset at  `data/{METR-LA,PEMS-BAY}/{train,val,test}.npz`.
 ```bash
