@@ -15,7 +15,7 @@ def cosine_similarity_torch(x1, x2=None, eps=1e-8):
     return torch.mm(x1, x2.t()) / (w1 * w2.t()).clamp(min=eps)
 
 def sample_gumbel(shape, eps=1e-20):
-    U = torch.rand(shape).cuda()
+    U = torch.rand(shape).to(device)
     return -torch.autograd.Variable(torch.log(-torch.log(U + eps) + eps))
 
 def gumbel_softmax_sample(logits, temperature, eps=1e-10):
