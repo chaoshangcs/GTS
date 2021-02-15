@@ -281,6 +281,9 @@ class GTSSupervisor:
                         optimizer = torch.optim.Adam(self.GTS_model.parameters(), lr=base_lr, eps=epsilon)
 
                 self.GTS_model.to(device)
+                
+                #if batch_idx % 100 == 1:
+                #    temp = np.maximum(temp * np.exp(-self.ANNEAL_RATE * batch_idx), self.temp_min)
 
                 if label == 'without_regularization':  # or label == 'predictor':
                     loss = self._compute_loss(y, output)
