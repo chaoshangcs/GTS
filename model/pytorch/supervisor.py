@@ -205,6 +205,8 @@ class GTSSupervisor:
                     m_12.append(masked_mape_loss(y_pred[:12], y_true[:12]).item())
                     r_12.append(masked_rmse_loss(y_pred[:12], y_true[:12]).item())
 
+                #if batch_idx % 100 == 1:
+                #    temp = np.maximum(temp * np.exp(-self.ANNEAL_RATE * batch_idx), self.temp_min)
             mean_loss = np.mean(losses)
             if dataset == 'test':
                 message = 'Horizon 15mins: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(l_3), np.mean(m_3),
