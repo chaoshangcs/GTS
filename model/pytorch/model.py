@@ -216,6 +216,7 @@ class GTSModel(nn.Module, Seq2SeqAttrs):
         x = self.conv1(x)
         x = F.relu(x)
         x = self.bn1(x)
+        # x = self.hidden_drop(x)
         x = self.conv2(x)
         x = F.relu(x)
         x = self.bn2(x)
