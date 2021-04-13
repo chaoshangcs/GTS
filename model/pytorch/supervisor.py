@@ -172,7 +172,7 @@ class GTSSupervisor:
                     losses.append(loss.item())
 
                     l_3.append(masked_mae_loss(y_pred[2:3], y_true[2:3]).item())
-                    m_3.append(masked_mape_loss(y_pred[2:3], y_true[:3]).item())
+                    m_3.append(masked_mape_loss(y_pred[2:3], y_true[2:3]).item())
                     r_3.append(masked_rmse_loss(y_pred[2:3], y_true[2:3]).item())
                     l_6.append(masked_mae_loss(y_pred[5:6], y_true[5:6]).item())
                     m_6.append(masked_mape_loss(y_pred[5:6], y_true[5:6]).item())
