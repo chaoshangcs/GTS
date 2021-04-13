@@ -185,7 +185,7 @@ class GTSSupervisor:
                     message = 'Test: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(mean_loss), np.mean(mean_mape),
                                                                                                np.mean(mean_rmse))
                     self._logger.info(message)
-                 else:
+                else:
                     message = 'Test: mae: {:.4f}'.format(np.mean(mean_loss))
                     self._logger.info(message)
 
