@@ -147,15 +147,6 @@ class GTSSupervisor:
             losses = []
             mapes = []
             rmses = []
-            l_3 = []
-            m_3 = []
-            r_3 = []
-            l_6 = []
-            m_6 = []
-            r_6 = []
-            l_12 = []
-            m_12 = []
-            r_12 = []
             temp = self.temperature
 
             for batch_idx, (x, y) in enumerate(val_iterator):
@@ -171,16 +162,6 @@ class GTSSupervisor:
                     rmses.append(masked_rmse_loss(y_pred, y_true).item())
                     losses.append(loss.item())
 
-                    l_3.append(masked_mae_loss(y_pred[2:3], y_true[2:3]).item())
-                    m_3.append(masked_mape_loss(y_pred[2:3], y_true[2:3]).item())
-                    r_3.append(masked_rmse_loss(y_pred[2:3], y_true[2:3]).item())
-                    l_6.append(masked_mae_loss(y_pred[5:6], y_true[5:6]).item())
-                    m_6.append(masked_mape_loss(y_pred[5:6], y_true[5:6]).item())
-                    r_6.append(masked_rmse_loss(y_pred[5:6], y_true[5:6]).item())
-                    l_12.append(masked_mae_loss(y_pred[11:12], y_true[11:12]).item())
-                    m_12.append(masked_mape_loss(y_pred[11:12], y_true[11:12]).item())
-                    r_12.append(masked_rmse_loss(y_pred[11:12], y_true[11:12]).item())
-
                 else:
                     loss_1 = self._compute_loss(y, output)
                     pred = torch.sigmoid(mid_output.view(mid_output.shape[0] * mid_output.shape[1]))
@@ -193,36 +174,23 @@ class GTSSupervisor:
                     y_true = self.standard_scaler.inverse_transform(y)
                     y_pred = self.standard_scaler.inverse_transform(output)
 
-                    l_3.append(masked_mae_loss(y_pred[2:3], y_true[2:3]).item())
-                    m_3.append(masked_mape_loss(y_pred[2:3], y_true[2:3]).item())
-                    r_3.append(masked_rmse_loss(y_pred[2:3], y_true[2:3]).item())
-
-                    l_6.append(masked_mae_loss(y_pred[5:6], y_true[5:6]).item())
-                    m_6.append(masked_mape_loss(y_pred[5:6], y_true[5:6]).item())
-                    r_6.append(masked_rmse_loss(y_pred[5:6], y_true[5:6]).item())
-
-                    l_12.append(masked_mae_loss(y_pred[11:12], y_true[11:12]).item())
-                    m_12.append(masked_mape_loss(y_pred[11:12], y_true[11:12]).item())
-                    r_12.append(masked_rmse_loss(y_pred[11:12], y_true[11:12]).item())
-
                 #if batch_idx % 100 == 1:
                 #    temp = np.maximum(temp * np.exp(-self.ANNEAL_RATE * batch_idx), self.temp_min)
             mean_loss = np.mean(losses)
+            
             if dataset == 'test':
-                message = 'Horizon 15mins: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(l_3), np.mean(m_3),
-                                                                                           np.mean(r_3))
-                self._logger.info(message)
-                message = 'Horizon 30mins: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(l_6), np.mean(m_6),
-                                                                                           np.mean(r_6))
-                self._logger.info(message)
-                message = 'Horizon 60mins: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(l_12), np.mean(m_12),
-                                                                                           np.mean(r_12))
-                self._logger.info(message)
+                if label == 'all':
+                    mean_mape = np.mean(mapes)
+                    mean_rmse = np.mean(rmses)
+                    message = 'Test: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(mean_loss), np.mean(mean_mape),
+                                                                                               np.mean(mean_rmse))
+                    self._logger.info(message)
+                 else:
+                    message = 'Test: mae: {:.4f}'.format(np.mean(mean_loss))
+                    self._logger.info(message)
 
             self._writer.add_scalar('{} loss'.format(dataset), mean_loss, batches_seen)
             if label == 'all':
-                mean_mape = np.mean(mapes)
-                mean_rmse = np.mean(rmses)
                 return mean_loss, mean_mape, mean_rmse
             else:
                 return mean_loss
