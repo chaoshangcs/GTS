@@ -173,21 +173,19 @@ class GTSSupervisor:
 
                     y_true = self.standard_scaler.inverse_transform(y)
                     y_pred = self.standard_scaler.inverse_transform(output)
+                    mapes.append(masked_mape_loss(y_pred, y_true).item())
+                    rmses.append(masked_rmse_loss(y_pred, y_true).item())
 
                 #if batch_idx % 100 == 1:
                 #    temp = np.maximum(temp * np.exp(-self.ANNEAL_RATE * batch_idx), self.temp_min)
             mean_loss = np.mean(losses)
             
             if dataset == 'test':
-                if label == 'without_regularization':
-                    mean_mape = np.mean(mapes)
-                    mean_rmse = np.mean(rmses)
-                    message = 'Test: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(mean_loss), np.mean(mean_mape),
-                                                                                               np.mean(mean_rmse))
-                    self._logger.info(message)
-                else:
-                    message = 'Test: mae: {:.4f}'.format(np.mean(mean_loss))
-                    self._logger.info(message)
+                mean_mape = np.mean(mapes)
+                mean_rmse = np.mean(rmses)
+                message = 'Test: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(mean_loss), np.mean(mean_mape),
+                                                                                           np.mean(mean_rmse))
+                self._logger.info(message)
 
             self._writer.add_scalar('{} loss'.format(dataset), mean_loss, batches_seen)
             if label == 'without_regularization':
