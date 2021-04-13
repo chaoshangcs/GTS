@@ -154,7 +154,7 @@ class GTSSupervisor:
 
                 output, mid_output = self.GTS_model(label, x, self._train_feas, temp, gumbel_soft)
 
-                if label == 'all':  # or label == 'predictor':
+                if label == 'without_regularization': 
                     loss = self._compute_loss(y, output)
                     y_true = self.standard_scaler.inverse_transform(y)
                     y_pred = self.standard_scaler.inverse_transform(output)
@@ -179,7 +179,7 @@ class GTSSupervisor:
             mean_loss = np.mean(losses)
             
             if dataset == 'test':
-                if label == 'all':
+                if label == 'without_regularization':
                     mean_mape = np.mean(mapes)
                     mean_rmse = np.mean(rmses)
                     message = 'Test: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(mean_loss), np.mean(mean_mape),
@@ -190,7 +190,7 @@ class GTSSupervisor:
                     self._logger.info(message)
 
             self._writer.add_scalar('{} loss'.format(dataset), mean_loss, batches_seen)
-            if label == 'all':
+            if label == 'without_regularization':
                 return mean_loss, mean_mape, mean_rmse
             else:
                 return mean_loss
