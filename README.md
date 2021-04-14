@@ -17,7 +17,6 @@ pip install -r requirements.txt
 * pyyaml
 * statsmodels
 * tensorflow>=1.3.0
-* torch
 * tables
 * future
 
@@ -62,4 +61,4 @@ You can directly modify the model in the "model/pytorch/model.py" file.
 
 ## Acknowledgments
 
-[DCRNN](https://github.com/chnsh/DCRNN_PyTorch), [GCN](https://github.com/tkipf/gcn), [NRI](https://github.com/ethanfetaya/NRI) and [LDS-GNN](https://github.com/lucfra/LDS-GNN).
+[DCRNN-PyTorch](https://github.com/chnsh/DCRNN_PyTorch), [GCN](https://github.com/tkipf/gcn), [NRI](https://github.com/ethanfetaya/NRI) and [LDS-GNN](https://github.com/lucfra/LDS-GNN).
