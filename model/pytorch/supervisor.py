@@ -217,6 +217,8 @@ class GTSSupervisor:
             if dataset == 'test':
                 mean_mape = np.mean(mapes)
                 mean_rmse = np.mean(rmses)
+                
+                # Followed the DCRNN PyTorch Implementation
                 message = 'Test: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(mean_loss), np.mean(mean_mape),
                                                                                            np.mean(mean_rmse))
                 self._logger.info(message)
