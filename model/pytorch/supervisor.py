@@ -215,8 +215,8 @@ class GTSSupervisor:
             mean_loss = np.mean(losses)
             
             if dataset == 'test':
-                mean_mape = np.mean(mapes)
-                mean_rmse = np.mean(rmses)
+                #mean_mape = np.mean(mapes)
+                #mean_rmse = np.mean(rmses)
                 
                 # Followed the DCRNN PyTorch Implementation
                 message = 'Test: mae: {:.4f}, mape: {:.4f}, rmse: {:.4f}'.format(np.mean(mean_loss), np.mean(mean_mape),
@@ -236,6 +236,8 @@ class GTSSupervisor:
 
             self._writer.add_scalar('{} loss'.format(dataset), mean_loss, batches_seen)
             if label == 'without_regularization':
+                mean_mape = np.mean(mapes)
+                mean_rmse = np.mean(rmses)
                 return mean_loss, mean_mape, mean_rmse
             else:
                 return mean_loss
