@@ -147,7 +147,7 @@ class GTSSupervisor:
             losses = []
             mapes = []
             #rmses = []
-            mse = []
+            mses = []
             temp = self.temperature
             
             l_3 = []
