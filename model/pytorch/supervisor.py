@@ -194,6 +194,8 @@ class GTSSupervisor:
                     compute_loss = torch.nn.BCELoss()
                     loss_g = compute_loss(pred, true_label)
                     loss = loss_1 + loss_g
+                    # option
+                    # loss = loss_1 + 10*loss_g
                     losses.append((loss_1.item()+loss_g.item()))
 
                     y_true = self.standard_scaler.inverse_transform(y)
@@ -218,7 +220,7 @@ class GTSSupervisor:
             mean_loss = np.mean(losses)
             mean_mape = np.mean(mapes)
             mean_rmse = np.sqrt(np.mean(mses))
-            
+            # mean_rmse = np.mean(rmses) #another option
             
             if dataset == 'test':
                 
@@ -311,6 +313,8 @@ class GTSSupervisor:
                     compute_loss = torch.nn.BCELoss()
                     loss_g = compute_loss(pred, true_label)
                     loss = loss_1 + loss_g
+                    # option
+                    # loss = loss_1 + 10*loss_g
                     losses.append((loss_1.item()+loss_g.item()))
 
                 self._logger.debug(loss.item())
