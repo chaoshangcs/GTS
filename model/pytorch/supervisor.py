@@ -308,7 +308,7 @@ class GTSSupervisor:
                     losses.append(loss.item())
                 else:
                     loss_1 = self._compute_loss(y, output)
-                    pred = torch.sigmoid(mid_output.view(mid_output.shape[0] * mid_output.shape[1])) # Another option: use softmax.
+                    pred = mid_output.view(mid_output.shape[0] * mid_output.shape[1])
                     true_label = self.adj_mx.view(mid_output.shape[0] * mid_output.shape[1]).to(device)
                     compute_loss = torch.nn.BCELoss()
                     loss_g = compute_loss(pred, true_label)
