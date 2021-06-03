@@ -246,4 +246,4 @@ class GTSModel(nn.Module, Seq2SeqAttrs):
                 "Total trainable parameters {}".format(count_parameters(self))
             )
 
-        return outputs, x[:, 0].clone().reshape(self.num_nodes, -1)
+        return outputs, x.softmax(-1)[:, 0].clone().reshape(self.num_nodes, -1)
