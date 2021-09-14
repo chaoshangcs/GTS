@@ -59,6 +59,18 @@ Hyperparameters can be modified in the `para_la.yaml` and `para_bay.yaml` files.
 
 You can directly modify the model in the "model/pytorch/model.py" file.
 
+## Citation
+
+If you use this repository, e.g., the code and the datasets, in your research, please cite the following paper:
+```
+@article{shang2021discrete,
+  title={Discrete Graph Structure Learning for Forecasting Multiple Time Series},
+  author={Shang, Chao and Chen, Jie and Bi, Jinbo},
+  journal={arXiv preprint arXiv:2101.06861},
+  year={2021}
+}
+```
+
 ## Acknowledgments
 
 [DCRNN-PyTorch](https://github.com/chnsh/DCRNN_PyTorch), [GCN](https://github.com/tkipf/gcn), [NRI](https://github.com/ethanfetaya/NRI) and [LDS-GNN](https://github.com/lucfra/LDS-GNN).
