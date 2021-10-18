@@ -52,6 +52,21 @@ class DCGRUCell(torch.nn.Module):
         self._max_diffusion_step = max_diffusion_step
         self._supports = []
         self._use_gc_for_ru = use_gc_for_ru
+        
+        '''
+        Option:
+        if filter_type == "laplacian":
+            supports.append(utils.calculate_scaled_laplacian(adj_mx, lambda_max=None))
+        elif filter_type == "random_walk":
+            supports.append(utils.calculate_random_walk_matrix(adj_mx).T)
+        elif filter_type == "dual_random_walk":
+            supports.append(utils.calculate_random_walk_matrix(adj_mx).T)
+            supports.append(utils.calculate_random_walk_matrix(adj_mx.T).T)
+        else:
+            supports.append(utils.calculate_scaled_laplacian(adj_mx))
+        for support in supports:
+            self._supports.append(self._build_sparse_matrix(support))
+        '''
 
         self._fc_params = LayerParams(self, 'fc')
         self._gconv_params = LayerParams(self, 'gconv')
@@ -144,6 +159,17 @@ class DCGRUCell(torch.nn.Module):
                 x2 = 2 * torch.mm(adj_mx, x1) - x0
                 x = self._concat(x, x2)
                 x1, x0 = x2, x1
+            '''
+            Option:
+            for support in self._supports:
+                x1 = torch.sparse.mm(support, x0)
+                x = self._concat(x, x1)
+
+                for k in range(2, self._max_diffusion_step + 1):
+                    x2 = 2 * torch.sparse.mm(support, x1) - x0
+                    x = self._concat(x, x2)
+                    x1, x0 = x2, x1
+            '''
         num_matrices = self._max_diffusion_step + 1  # Adds for x itself.
         x = torch.reshape(x, shape=[num_matrices, self._num_nodes, input_size, batch_size])
         x = x.permute(3, 1, 2, 0)  # (batch_size, num_nodes, input_size, order)
