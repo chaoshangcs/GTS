@@ -16,7 +16,7 @@ class SpatialAttention(nn.Module):
         self.v_s = nn.Parameter(torch.randn((num_of_vertices, num_of_vertices)))
 
     def forward(self, x):
-        b_s , _, _, _ = x.shape
+        b_s , _ = x.shape
         lhs = torch.matmul(torch.matmul(x.reshape(b_s, 207, 2, 1),self.w_1), self.w_2)
         # torch.matmul(torch.matmul((x.permute(0, 3, 2, 1).reshape(x.permute(0, 3, 2, 1).size()[2],-1)).T, self.w_2).reshape(64,13,2),
         #              self.U_2)
