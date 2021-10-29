@@ -17,12 +17,12 @@ class SpatialAttention(nn.Module):
 
     def forward(self, x):
         import pdb;pdb.set_trace()
-        b_s , _ = x.shape
-        lhs = torch.matmul(torch.matmul(x.reshape(b_s, 207, 2, 1),self.w_1), self.w_2)
+        b_s , other = x.shape
+        lhs = torch.matmul(torch.matmul(x.reshape(b_s, 207, (other//207), 1),self.w_1), self.w_2)
         # torch.matmul(torch.matmul((x.permute(0, 3, 2, 1).reshape(x.permute(0, 3, 2, 1).size()[2],-1)).T, self.w_2).reshape(64,13,2),
         #              self.U_2)
         # rhs = torch.matmul(self.w_3, x.permute(2,0,3,1))
-        rhs = torch.einsum('n,nvlt->vlt', self.w_3 , x.reshape( 2,b_s , 1, 207))
+        rhs = torch.einsum('n,nvlt->vlt', self.w_3 , x.reshape( (other//207),b_s , 1, 207))
 
         product = torch.matmul(lhs, rhs)
         S =torch.matmul(self.v_s,
