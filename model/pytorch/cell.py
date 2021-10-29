@@ -17,6 +17,7 @@ class SpatialAttention(nn.Module):
 
     def forward(self, x):
         b_s , other = x.shape
+        import pdb;pdb.set_trace()
         lhs = torch.matmul(torch.matmul(x.reshape(b_s, 207, (other//207), 1),self.w_1), self.w_2)
         # torch.matmul(torch.matmul((x.permute(0, 3, 2, 1).reshape(x.permute(0, 3, 2, 1).size()[2],-1)).T, self.w_2).reshape(64,13,2),
         #              self.U_2)
