@@ -24,7 +24,7 @@ model:
   dim_fc: 383552
 
 train:
-  base_lr: 0.005 
+  base_lr: 0.001
   dropout: 0
   epoch: 0
   epochs: 200
