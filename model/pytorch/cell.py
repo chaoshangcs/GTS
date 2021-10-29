@@ -16,11 +16,12 @@ class SpatialAttention(nn.Module):
         self.v_s = nn.Parameter(torch.randn((num_of_vertices, num_of_vertices)))
 
     def forward(self, x):
-        lhs = torch.matmul(torch.matmul(x.reshape(64, 207, 2, 1),self.w_1), self.w_2)
+        b_s , _, _, _ = x.shape
+        lhs = torch.matmul(torch.matmul(x.reshape(b_s, 207, 2, 1),self.w_1), self.w_2)
         # torch.matmul(torch.matmul((x.permute(0, 3, 2, 1).reshape(x.permute(0, 3, 2, 1).size()[2],-1)).T, self.w_2).reshape(64,13,2),
         #              self.U_2)
         # rhs = torch.matmul(self.w_3, x.permute(2,0,3,1))
-        rhs = torch.einsum('n,nvlt->vlt', self.w_3 , x.reshape( 2,64, 1, 207))
+        rhs = torch.einsum('n,nvlt->vlt', self.w_3 , x.reshape( 2,b_s , 1, 207))
 
         product = torch.matmul(lhs, rhs)
         S =torch.matmul(self.v_s,
@@ -186,6 +187,7 @@ class DCGRUCell(torch.nn.Module):
         # input.shape = [64, 414]
         # hx.shape = torch.Size([64, 13248])
         adj_mx = self._calculate_random_walk_matrix(adj).t()
+        b_s, _ = inputs.shape
         output_size = 2 * self._num_units
         if self._use_gc_for_ru:
             fn = self._gconv
@@ -201,7 +203,7 @@ class DCGRUCell(torch.nn.Module):
         if self._activation is not None:
             c = self._activation(c)
 
-        attention = torch.matmul(self.attention(inputs), self.wt).reshape(-1, 64).T 
+        attention = torch.matmul(self.attention(inputs), self.wt).reshape(-1, b_s).T 
         new_state = u * hx + (1.0 - u) * c + attention
         return new_state
 
