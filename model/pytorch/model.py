@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from model.pytorch.cell import DCGRUCell
+from model.pytorch.cell import DCGRUCell, DecoderDCGRUCell
 import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -105,7 +105,7 @@ class DecoderModel(nn.Module, Seq2SeqAttrs):
         self.horizon = int(model_kwargs.get('horizon', 1))  # for the decoder
         self.projection_layer = nn.Linear(self.rnn_units, self.output_dim)
         self.dcgru_layers = nn.ModuleList(
-            [DCGRUCell(self.rnn_units, self.max_diffusion_step, self.num_nodes,
+            [DecoderDCGRUCell(self.rnn_units, self.max_diffusion_step, self.num_nodes,
                        filter_type=self.filter_type) for _ in range(self.num_rnn_layers)])
 
     def forward(self, inputs, adj, hidden_state=None):
