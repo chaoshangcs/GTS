@@ -78,7 +78,7 @@ class EncoderModel(nn.Module, Seq2SeqAttrs):
                  hidden_state # shape (num_layers, batch_size, self.hidden_state_size)
                  (lower indices mean lower layers)
         """
-        if self.zer!=12:
+        if self.zer<12:
             self.zer +=1
         else:
             import pdb;pdb.set_trace()
