@@ -306,4 +306,4 @@ class DCGRUCell(torch.nn.Module):
 class DecoderDCGRUCell(DCGRUCell):
 
     def get_spatial_attention(self):
-        return DecoderSpatialAttention(1, 2, 207)
+        return DecoderSpatialAttention(1, 1, 207)
