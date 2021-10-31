@@ -66,6 +66,7 @@ class EncoderModel(nn.Module, Seq2SeqAttrs):
         self.dcgru_layers = nn.ModuleList(
             [DCGRUCell(self.rnn_units, self.max_diffusion_step, self.num_nodes,
                        filter_type=self.filter_type) for _ in range(self.num_rnn_layers)])
+        self.zer = 1
 
     def forward(self, inputs, adj, hidden_state=None):
         """
@@ -77,6 +78,10 @@ class EncoderModel(nn.Module, Seq2SeqAttrs):
                  hidden_state # shape (num_layers, batch_size, self.hidden_state_size)
                  (lower indices mean lower layers)
         """
+        if self.zer!=11:
+            self.zer +=1
+        else:
+            import pdb;pdb.set_trace()
         batch_size, _ = inputs.size()
         if hidden_state is None:
             hidden_state = torch.zeros((self.num_rnn_layers, batch_size, self.hidden_state_size),
