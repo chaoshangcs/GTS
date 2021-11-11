@@ -111,6 +111,9 @@ class GTSSupervisor:
         config['epoch'] = epoch
         torch.save(config, 'models/epo%d.tar' % epoch)
         self._logger.info("Saved model at {}".format(epoch))
+        if epoch%25==0 and epoch!=25:
+            from google.colab import files
+            files.download('models/epo%d.tar' % epoch)
         return 'models/epo%d.tar' % epoch
 
     def load_model(self):
@@ -128,7 +131,7 @@ class GTSSupervisor:
 
             for _, (x, y) in enumerate(val_iterator):
                 x, y = self._prepare_data(x, y)
-                output = self.GTS_model(x, self._train_feas)
+                output = self.lGTS_mode(x, self._train_feas)
                 break
 
     def train(self, **kwargs):
