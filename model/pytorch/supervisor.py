@@ -131,7 +131,7 @@ class GTSSupervisor:
 
             for _, (x, y) in enumerate(val_iterator):
                 x, y = self._prepare_data(x, y)
-                output = self.GTS_model(x, self._train_feas,self.temperature, True)
+                output = self.GTS_model("with_regularization",x, self._train_feas,self.temperature, True)
                 break
 
     def train(self, **kwargs):
