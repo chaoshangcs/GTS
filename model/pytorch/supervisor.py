@@ -118,8 +118,8 @@ class GTSSupervisor:
 
     def load_model(self):
         self._setup_graph()
-        assert os.path.exists('models/epo%d.tar' % self._epoch_num), 'Weights at epoch %d not found' % self._epoch_num
-        checkpoint = torch.load('models/epo%d.tar' % self._epoch_num, map_location='cpu')
+        assert os.path.exists('/content/drive/MyDrive/improved_graph_wavenet/models/epo%d.tar' % self._epoch_num), 'Weights at epoch %d not found' % self._epoch_num
+        checkpoint = torch.load('/content/drive/MyDrive/improved_graph_wavenet/models/epo%d.tar' % self._epoch_num, map_location='cpu')
         self.GTS_model.load_state_dict(checkpoint['model_state_dict'])
         self._logger.info("Loaded model at {}".format(self._epoch_num))
 
