@@ -237,8 +237,10 @@ class GTSModel(nn.Module, Seq2SeqAttrs):
         # mask = torch.eye(self.num_nodes, self.num_nodes).to(device).byte()
         mask = torch.eye(self.num_nodes, self.num_nodes).bool().to(device)
         adj.masked_fill_(mask, 0)
-
+        import pdb;pdb.set_trace()
         encoder_hidden_state = self.encoder(inputs, adj)
+        import pdb;pdb.set_trace()
+
         self._logger.debug("Encoder complete, starting decoder")
         outputs = self.decoder(encoder_hidden_state, adj, labels, batches_seen=batches_seen)
         self._logger.debug("Decoder complete")
