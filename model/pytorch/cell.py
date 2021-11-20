@@ -215,8 +215,11 @@ class DCGRUCell(torch.nn.Module):
         :return
         - Output: A `2-D` tensor with shape `(B, num_nodes * rnn_units)`.
         """
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         # input.shape = [64, 414]
+        # adj = torch.Size([207, 207])
+        # 
+        # 
         # hx.shape = torch.Size([64, 13248])
         adj_mx = self._calculate_random_walk_matrix(adj).t()
         b_s, _ = inputs.shape
@@ -234,7 +237,8 @@ class DCGRUCell(torch.nn.Module):
         c = self._gconv(inputs, adj_mx, r * hx, self._num_units)
         if self._activation is not None:
             c = self._activation(c)
-
+        # R-> torch.Size([64, 13248])
+        # U-> torch.Size([64, 13248])
         attention = torch.matmul(self.attention(inputs), self.wt).reshape(-1, b_s).T 
         new_state = u * hx + (1.0 - u) * c + attention
         return new_state
