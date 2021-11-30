@@ -1,7 +1,115 @@
 import numpy as np
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from lib import utils
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+class SpatialAttention(nn.Module):
+    def __init__(self, num_of_timesteps, num_of_features, num_of_vertices):
+        super().__init__()
+        self.w_1 = nn.Parameter(torch.randn((num_of_timesteps, )))
+        self.w_2 = nn.Parameter(torch.randn((num_of_features, num_of_timesteps)))
+        self.w_3 = nn.Parameter(torch.randn((num_of_features, )))
+        self.b_s = nn.Parameter(torch.randn((1, num_of_vertices, num_of_vertices)))
+        self.v_s = nn.Parameter(torch.randn((num_of_vertices, num_of_vertices)))
+
+    def forward(self, x):
+        b_s , other = x.shape
+        lhs = torch.matmul(torch.matmul(x.reshape(b_s, 207, (other//207), 1),self.w_1), self.w_2)
+        # torch.matmul(torch.matmul((x.permute(0, 3, 2, 1).reshape(x.permute(0, 3, 2, 1).size()[2],-1)).T, self.w_2).reshape(64,13,2),
+        #              self.U_2)
+        # rhs = torch.matmul(self.w_3, x.permute(2,0,3,1))
+        rhs = torch.einsum('n,nvlt->vlt', self.w_3 , x.reshape( (other//207),b_s , 1, 207))
+
+        product = torch.matmul(lhs, rhs)
+        S =torch.matmul(self.v_s,
+                  F.sigmoid(product + self.b_s)
+                     .permute(1, 2, 0)).permute(2, 0, 1)
+        S = S - torch.max(S, axis=1, keepdims=True)[0]
+        exp = torch.exp(S)
+        S_normalized = exp / torch.sum(exp, axis=1, keepdims=True)
+        return S_normalized
+
+
+class DecoderSpatialAttention(nn.Module):
+    def __init__(self, num_of_timesteps, num_of_features, num_of_vertices):
+        super().__init__()
+        self.w_1 = nn.Parameter(torch.randn((num_of_timesteps, )))
+        self.w_2 = nn.Parameter(torch.randn((num_of_features, num_of_timesteps)))
+        self.w_3 = nn.Parameter(torch.randn((num_of_features, )))
+        self.b_s = nn.Parameter(torch.randn((1, num_of_vertices, num_of_vertices)))
+        self.v_s = nn.Parameter(torch.randn((num_of_vertices, num_of_vertices)))
+
+    def forward(self, x):
+        b_s , other = x.shape
+        # import pdb;pdb.set_trace()
+        lhs = torch.matmul(torch.matmul(x.reshape(b_s, 207, (other//207), 1),self.w_1), self.w_2)
+        # torch.matmul(torch.matmul((x.permute(0, 3, 2, 1).reshape(x.permute(0, 3, 2, 1).size()[2],-1)).T, self.w_2).reshape(64,13,2),
+        #              self.U_2)
+        # rhs = torch.matmul(self.w_3, x.permute(2,0,3,1))
+        rhs = torch.einsum('n,nvlt->vlt', self.w_3 , x.reshape( (other//207),b_s , 1, 207))
+
+        product = torch.matmul(lhs, rhs)
+        S =torch.matmul(self.v_s,
+                  F.sigmoid(product + self.b_s)
+                     .permute(1, 2, 0)).permute(2, 0, 1)
+        S = S - torch.max(S, axis=1, keepdims=True)[0]
+        exp = torch.exp(S)
+        S_normalized = exp / torch.sum(exp, axis=1, keepdims=True)
+        return S_normalized
+
+
+class Temporal_Attention_layer(nn.Module):
+    '''
+    compute temporal attention scores
+    '''
+    def __init__(self,num_of_vertices, num_of_features, num_of_timesteps, **kwargs):
+        super(Temporal_Attention_layer, self).__init__(**kwargs)
+        self.U_1 = nn.Parameter(torch.randn((num_of_vertices, )))
+        self.U_2 = nn.Parameter(torch.randn((num_of_features, num_of_vertices)))
+        self.U_3 = nn.Parameter(torch.randn((num_of_features, )))
+        self.b_e = nn.Parameter(torch.randn((1, num_of_timesteps, num_of_timesteps)))
+        self.V_e = nn.Parameter(torch.randn((num_of_timesteps, num_of_timesteps)))
+
+    def forward(self, x):
+        '''
+        Parameters
+        ----------
+        x: mx.ndarray, x^{(r - 1)}_h
+                       shape is (batch_size, N, C_{r-1}, T_{r-1})
+
+        Returns
+        ----------
+        E_normalized: mx.ndarray, S', spatial attention scores
+                      shape is (batch_size, T_{r-1}, T_{r-1})
+
+        '''
+        _, num_of_vertices, num_of_features, num_of_timesteps = x.shape
+
+
+        # compute temporal attention scores
+        # shape is (N, T, V)
+        lhs = torch.matmul(torch.matmul((x.permute(0, 3, 2, 1).reshape(x.permute(0, 3, 2, 1).size()[2],-1)).T, self.U_1).reshape(64,13,2),
+                     self.U_2)
+        # shape is (N, V, T)
+        # rhs = torch.matmul(self.U_3, x.permute(2, 0, 1, 3))
+        # rhs = (self.U_3 * x.permute(2, 0, 1, 3)).squeeze(0)
+        rhs = torch.einsum('bnlv,v->bnl', (x.permute(2, 0, 1, 3).reshape(207, 64, 13, 2),self.U_3)).contiguous()
+
+        product = torch.matmul(lhs.reshape(64,13,207), rhs.reshape(64,207,13))
+
+        E = torch.matmul(self.V_e,
+                   F.sigmoid(product + self.b_e)
+                     .permute(1, 2, 0)).permute(2, 0, 1)
+
+        # normailzation
+        E = E - torch.max(E, axis=1, keepdims=True)[0]
+        exp = torch.exp(E)
+        E_normalized = exp / torch.sum(exp, axis=1, keepdims=True)
+        return E_normalized
+
 
 class LayerParams:
     def __init__(self, rnn_network: torch.nn.Module, layer_type: str):
@@ -52,6 +160,10 @@ class DCGRUCell(torch.nn.Module):
         self._max_diffusion_step = max_diffusion_step
         self._supports = []
         self._use_gc_for_ru = use_gc_for_ru
+        self.attention = self.get_spatial_attention()
+        self.wt = torch.nn.Parameter(torch.empty(64,207,64)).to(device)
+        torch.nn.init.xavier_normal_(self.wt)
+
         
         '''
         Option:
@@ -70,6 +182,9 @@ class DCGRUCell(torch.nn.Module):
 
         self._fc_params = LayerParams(self, 'fc')
         self._gconv_params = LayerParams(self, 'gconv')
+    
+    def get_spatial_attention(self):
+        return SpatialAttention(1, 2, 207)
 
     @staticmethod
     def _build_sparse_matrix(L):
@@ -100,7 +215,14 @@ class DCGRUCell(torch.nn.Module):
         :return
         - Output: A `2-D` tensor with shape `(B, num_nodes * rnn_units)`.
         """
+        # import pdb;pdb.set_trace()
+        # input.shape = [64, 414]
+        # adj = torch.Size([207, 207])
+        # 
+        # 
+        # hx.shape = torch.Size([64, 13248])
         adj_mx = self._calculate_random_walk_matrix(adj).t()
+        b_s, _ = inputs.shape
         output_size = 2 * self._num_units
         if self._use_gc_for_ru:
             fn = self._gconv
@@ -115,8 +237,10 @@ class DCGRUCell(torch.nn.Module):
         c = self._gconv(inputs, adj_mx, r * hx, self._num_units)
         if self._activation is not None:
             c = self._activation(c)
-
-        new_state = u * hx + (1.0 - u) * c
+        # R-> torch.Size([64, 13248])
+        # U-> torch.Size([64, 13248])
+        attention = torch.matmul(self.attention(inputs), self.wt).reshape(-1, b_s).T 
+        new_state = u * hx + (1.0 - u) * c + attention
         return new_state
 
     @staticmethod
@@ -182,3 +306,9 @@ class DCGRUCell(torch.nn.Module):
         x += biases
         # Reshape res back to 2D: (batch_size, num_node, state_dim) -> (batch_size, num_node * state_dim)
         return torch.reshape(x, [batch_size, self._num_nodes * output_size])
+
+
+class DecoderDCGRUCell(DCGRUCell):
+
+    def get_spatial_attention(self):
+        return DecoderSpatialAttention(1, 1, 207)
